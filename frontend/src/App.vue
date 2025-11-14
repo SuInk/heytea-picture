@@ -7,6 +7,94 @@
       </header>
 
       <div class="grid gap-6 lg:grid-cols-5">
+        <section class="lg:col-span-2">
+          <el-card body-style="{padding: '1.5rem'}" shadow="hover" class="space-y-4">
+            <div
+              :class="[
+                'rounded-xl border p-4 text-sm',
+                user
+                  ? 'border-green-400/70 bg-green-400/20 text-green'
+                  : 'text-green/10 bg-slate-900/40 text-slate-200'
+              ]"
+            >
+              <p
+                class="text-xs uppercase tracking-widest"
+                :class="user ? 'text-green/90' : 'text-slate-400'"
+              >
+                当前状态
+              </p>
+              <p class="text-2xl font-semibold mt-1 text-green">
+                {{ user ? `已登录 ${user.name}` : '未登录' }}
+              </p>
+              <p v-if="user" class="text-sm mt-1 text-green">
+                ID: {{ user.user_main_id }}
+              </p>
+            </div>
+
+            <el-tabs v-model="activeTab" class="text-slate-900">
+              <el-tab-pane label="短信验证码" name="sms">
+                <template v-if="!user">
+                  <el-form label-position="top" class="space-y-4">
+                    <el-form-item label="手机号 (仅支持国内 11 位)">
+                      <el-input v-model="phone" maxlength="11" placeholder="例：13800000000" />
+                    </el-form-item>
+                    <el-form-item label="短信验证码">
+                      <div class="flex gap-2">
+                        <el-input v-model="smsCode" maxlength="6" placeholder="6 位数字" />
+                        <el-button
+                          type="primary"
+                          :loading="isSendingCode"
+                          :disabled="isSendingCode || countdown > 0"
+                          @click="handleSendCode"
+                        >
+                          {{ countdown > 0 ? `${countdown}s` : '获取验证码' }}
+                        </el-button>
+                      </div>
+                    </el-form-item>
+                    <el-button type="primary" :loading="isLoggingIn" @click="handleSmsLogin">
+                      使用短信登录
+                    </el-button>
+                  </el-form>
+                </template>
+                <template v-else>
+                  <el-alert
+                    type="success"
+                    :closable="false"
+                    show-icon
+                    title="已登录"
+                    description="如需重新登录，请先退出。"
+                  />
+                </template>
+              </el-tab-pane>
+
+              <el-tab-pane label="Token 登录" name="token">
+                <el-form label-position="top" class="space-y-4">
+                  <el-form-item label="Bearer Token">
+                    <el-input
+                      v-model="manualToken"
+                      type="textarea"
+                      :rows="4"
+                      placeholder="粘贴已有 Token"
+                    />
+                  </el-form-item>
+                  <el-button type="primary" :loading="isLoggingIn" @click="handleTokenLogin">
+                    使用 Token 登录
+                  </el-button>
+                </el-form>
+              </el-tab-pane>
+            </el-tabs>
+
+            <div class="mt-2 flex items-center justify-between">
+              <label class="flex items-center gap-2 text-sm text-slate-300">
+                <el-switch v-model="rememberMe" size="small" /> 记住 Token（本地加密存储）
+              </label>
+              <el-button link type="danger" @click="clearAuth" :disabled="!authToken">
+                退出登录
+              </el-button>
+            </div>
+          </el-card>
+        </section>
+
         <section class="lg:col-span-3">
           <el-card body-style="{padding: '1.5rem'}" shadow="hover" class="space-y-6">
             <div class="flex flex-wrap items-center gap-3">
@@ -117,94 +205,6 @@
             </div>
           </el-card>
         </section>
-
-        <section class="lg:col-span-2">
-          <el-card body-style="{padding: '1.5rem'}" shadow="hover" class="space-y-4">
-            <div
-              :class="[
-                'rounded-xl border p-4 text-sm',
-                user
-                  ? 'border-green-400/70 bg-green-400/20 text-green'
-                  : 'text-green/10 bg-slate-900/40 text-slate-200'
-              ]"
-            >
-              <p
-                class="text-xs uppercase tracking-widest"
-                :class="user ? 'text-green/90' : 'text-slate-400'"
-              >
-                当前状态
-              </p>
-              <p class="text-2xl font-semibold mt-1 text-green">
-                {{ user ? `已登录 ${user.name}` : '未登录' }}
-              </p>
-              <p v-if="user" class="text-sm mt-1 text-green">
-                ID: {{ user.user_main_id }}
-              </p>
-            </div>
-
-            <el-tabs v-model="activeTab" class="text-slate-900">
-              <el-tab-pane label="短信验证码" name="sms">
-                <template v-if="!user">
-                  <el-form label-position="top" class="space-y-4">
-                    <el-form-item label="手机号 (仅支持国内 11 位)">
-                      <el-input v-model="phone" maxlength="11" placeholder="例：13800000000" />
-                    </el-form-item>
-                    <el-form-item label="短信验证码">
-                      <div class="flex gap-2">
-                        <el-input v-model="smsCode" maxlength="6" placeholder="6 位数字" />
-                        <el-button
-                          type="primary"
-                          :loading="isSendingCode"
-                          :disabled="isSendingCode || countdown > 0"
-                          @click="handleSendCode"
-                        >
-                          {{ countdown > 0 ? `${countdown}s` : '获取验证码' }}
-                        </el-button>
-                      </div>
-                    </el-form-item>
-                    <el-button type="primary" :loading="isLoggingIn" @click="handleSmsLogin">
-                      使用短信登录
-                    </el-button>
-                  </el-form>
-                </template>
-                <template v-else>
-                  <el-alert
-                    type="success"
-                    :closable="false"
-                    show-icon
-                    title="已登录"
-                    description="如需重新登录，请先退出。"
-                  />
-                </template>
-              </el-tab-pane>
-
-              <el-tab-pane label="Token 登录" name="token">
-                <el-form label-position="top" class="space-y-4">
-                  <el-form-item label="Bearer Token">
-                    <el-input
-                      v-model="manualToken"
-                      type="textarea"
-                      :rows="4"
-                      placeholder="粘贴已有 Token"
-                    />
-                  </el-form-item>
-                  <el-button type="primary" :loading="isLoggingIn" @click="handleTokenLogin">
-                    使用 Token 登录
-                  </el-button>
-                </el-form>
-              </el-tab-pane>
-            </el-tabs>
-
-            <div class="mt-2 flex items-center justify-between">
-              <label class="flex items-center gap-2 text-sm text-slate-300">
-                <el-switch v-model="rememberMe" size="small" /> 记住 Token（本地加密存储）
-              </label>
-              <el-button link type="danger" @click="clearAuth" :disabled="!authToken">
-                退出登录
-              </el-button>
-            </div>
-          </el-card>
-        </section>
       </div>
     </div>
   </div>
@@ -213,6 +213,7 @@
 <script setup lang="ts">
 import { computed, onUnmounted, ref, watch } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
+import { isAxiosError } from 'axios';
 
 import { CAPTCHA_APP_ID, CUP_HEIGHT, CUP_WIDTH, MAX_UPLOAD_BYTES } from '@/config/heytea';
 import { requestCaptcha } from '@/utils/captcha';
@@ -227,6 +228,41 @@ import {
 } from '@/services/heytea';
 
 const STORAGE_KEY = 'heytea-token';
+
+function extractServerMessage(payload: unknown): string | null {
+  if (!payload) {
+    return null;
+  }
+  if (typeof payload === 'string') {
+    return payload;
+  }
+  if (typeof payload === 'object') {
+    const record = payload as Record<string, unknown>;
+    for (const key of ['message', 'msg', 'error']) {
+      const value = record[key];
+      if (typeof value === 'string') {
+        return value;
+      }
+    }
+  }
+  return null;
+}
+
+function getErrorMessage(error: unknown, fallback: string) {
+  if (isAxiosError(error)) {
+    const serverMessage = extractServerMessage(error.response?.data);
+    if (serverMessage) {
+      return serverMessage;
+    }
+  }
+  if (error instanceof Error && error.message) {
+    return error.message;
+  }
+  if (typeof error === 'string') {
+    return error;
+  }
+  return fallback;
+}
 
 const activeTab = ref<'sms' | 'token'>('sms');
 const phone = ref('');
@@ -315,7 +351,7 @@ async function handleSendCode(payload?: CaptchaPayload) {
     startCountdown();
     ElMessage.success('验证码已发送');
   } catch (error) {
-    const message = error instanceof Error ? error.message : '发送失败';
+    const message = getErrorMessage(error, '发送失败');
     ElMessage.error(message);
   } finally {
     if (!payload) {
@@ -349,7 +385,7 @@ async function handleSmsLogin() {
     await bindToken(token);
     ElMessage.success('登录成功');
   } catch (error) {
-    const message = error instanceof Error ? error.message : '登录失败';
+    const message = getErrorMessage(error, '登录失败');
     ElMessage.error(message);
   } finally {
     isLoggingIn.value = false;
@@ -366,7 +402,7 @@ async function handleTokenLogin() {
     await bindToken(manualToken.value.trim());
     ElMessage.success('Token 登录成功');
   } catch (error) {
-    const message = error instanceof Error ? error.message : '登录失败';
+    const message = getErrorMessage(error, '登录失败');
     ElMessage.error(message);
     authToken.value = null;
   } finally {
@@ -382,7 +418,7 @@ async function resolveUserProfile() {
     const info = await fetchUserInfo(authToken.value);
     user.value = info;
   } catch (error) {
-    const message = error instanceof Error ? error.message : '获取用户信息失败';
+    const message = getErrorMessage(error, '获取用户信息失败');
     ElMessage.error(message);
     clearAuth(false);
   }
@@ -414,7 +450,7 @@ async function handleFile(file: File) {
     downloadName.value = file.name.replace(/\.[^.]+$/, '') + '.png';
     await renderPreview();
   } catch (error) {
-    const message = error instanceof Error ? error.message : '图片处理失败';
+    const message = getErrorMessage(error, '图片处理失败');
     ElMessage.error(message);
   }
 }
@@ -440,7 +476,7 @@ async function renderPreview() {
     }
     uploadState.value = null;
   } catch (error) {
-    const message = error instanceof Error ? error.message : '渲染失败';
+    const message = getErrorMessage(error, '渲染失败');
     ElMessage.error(message);
   } finally {
     isRendering.value = false;
@@ -484,7 +520,7 @@ async function handleUpload() {
     lastUploadHash.value = currentHash;
     ElMessage.success('杯贴上传成功');
   } catch (error) {
-    const message = error instanceof Error ? error.message : '上传失败';
+    const message = getErrorMessage(error, '上传失败');
     uploadState.value = { type: 'error', message };
     ElMessage.error(message);
   } finally {
@@ -556,3 +592,4 @@ async function getSubtleCrypto(): Promise<SubtleCrypto> {
   return cachedSubtle;
 }
 </script>
+
