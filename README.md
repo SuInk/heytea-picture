@@ -4,13 +4,11 @@ Vue 3 + TypeScript + Element Plus + Tailwind CSS + Node.js 代理，实现喜茶
 
 ## 功能概览
 
-- 手机号短信登录（Node 端转发喜茶接口，前端触发腾讯人机验证）
+- 手机号短信登录（Node 端转发喜茶接口）
 - Token 快速登录与本地记忆
 - 596×832 画布自动缩放、裁切、灰度、强制 PNG、自动压缩至 ≤ 200KB
 - 处理结果预览、下载、重复上传提醒
 - Node 代理直连官方 API：验证码、登录、用户信息、杯贴上传，并可托管前端静态文件
-
-⚠️ **风险提示**：所有真实请求仍然指向 `app-go.heytea.com`。若官方进一步收紧校验（设备指纹、IP 白名单等），代理同样会失效。仅供学习交流，请勿商用。
 
 ## 本地开发
 
@@ -35,37 +33,8 @@ npm start       # Express 读取 dist 并提供 /api/*
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FSuInk%2Fheytea-picture&project-name=heytea-cup&repository-name=heytea-cup&build-command=npm%20run%20frontend%3Abuild&install-command=npm%20install&output-directory=frontend%2Fdist)
 
-1. Fork 本仓库，在 Vercel 导入仓库。
-2. 构建设置：
+仓库根目录包含 `api/sms/send.js`、`api/login/sms.js`、`api/user.js`、`api/upload.js` 等 Serverless 端点（内部都复用 `server/app.js`），Vercel 会为每个端点生成函数，前端可直接访问同源 `/api/*`。
 
-| 选项              | 值                                |
-|-------------------|-----------------------------------|
-| Framework Preset  | Vite                              |
-| Build Command     | `npm run frontend:build`          |
-| Install Command   | `npm install`                     |
-| Output Directory  | `frontend/dist` *(require setting before deploy)* |
-
-仓库根目录包含 `api/sms/send.js`、`api/login/sms.js`、`api/user.js`、`api/upload.js` 等 Serverless 端点（复用 Express 逻辑），Vercel 会自动部署同源 `/api/*`，前端默认调用即可，无需再填写 `VITE_API_BASE`。
-
-## 自建 Node 代理（可选）
-
-可以选择任意支持 Node 18+ 的平台（VPS、Render、Railway 等）：
-
-```bash
-git clone https://github.com/<you>/heytea-picture.git
-cd heytea-picture
-npm install --prefix server
-npm run frontend:build           # 构建一次前端
-npm run start --prefix server    # 启动 Express（默认 8787）
-```
-
-`server/index.js` / `api/index.js` 共享同一 Express 应用：
-
-- `/api/*` 处理短信、登录、用户信息、上传，自动加密 + 签名再转发到 `app-go.heytea.com`；
-- 本地运行时（`npm start --prefix server`）会托管 `frontend/dist`，非 `/api` 请求返回 `index.html`；
-- 在 Vercel 上，静态资源由平台托管，API 由 `api/index.js` 提供，前端使用默认同源 `/api`。
-
-如果你在其它平台部署 Node 服务，将公网地址填到前端 `VITE_API_BASE` 即可覆盖默认值。
 
 ## 目录结构
 
