@@ -45,7 +45,7 @@ npm start       # Express 读取 dist 并提供 /api/*
 | Install Command   | `npm install`                     |
 | Output Directory  | `frontend/dist` *(require setting before deploy)* |
 
-仓库根目录包含 `api/[...all].js`（复用 Express 逻辑），Vercel 会自动生成捕获所有 `/api/*` 的 Serverless 函数，前端默认以同源 `/api/*` 调用，无需再填写 `VITE_API_BASE`。
+仓库根目录包含 `api/sms/send.js`、`api/login/sms.js`、`api/user.js`、`api/upload.js` 等 Serverless 端点（复用 Express 逻辑），Vercel 会自动部署同源 `/api/*`，前端默认调用即可，无需再填写 `VITE_API_BASE`。
 
 ## 自建 Node 代理（可选）
 
