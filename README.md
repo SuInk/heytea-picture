@@ -43,7 +43,7 @@ npm start       # Express 读取 dist 并提供 /api/*
 | Framework Preset  | Vite                              |
 | Build Command     | `npm run frontend:build`          |
 | Install Command   | `npm install`                     |
-| Output Directory  | `frontend/dist`                   |
+| Output Directory  | `frontend/dist` *(require setting before deploy)* |
 
 由于仓库根目录有 `api/index.js`（复用 Express 逻辑），Vercel 会自动生成 Serverless API，前端默认以同源 `/api/*` 调用，无需再填写 `VITE_API_BASE`。
 
