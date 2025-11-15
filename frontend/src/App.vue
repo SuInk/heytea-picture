@@ -135,7 +135,13 @@
                   <h3 class="text-lg font-semibold">杯贴效果 {{ CUP_WIDTH }}×{{ CUP_HEIGHT }} px</h3>
                   <el-tag size="small" effect="dark">@2:3 比例</el-tag>
                 </div>
-                <div class="relative rounded-2xl border border-white/10 bg-black/30 p-3">
+                <div
+                  class="relative rounded-2xl border border-white/10 bg-black/30 p-3"
+                  @dragenter.prevent="handleDragEnter"
+                  @dragover.prevent="handleDragOver"
+                  @dragleave="handleDragLeave"
+                  @drop.prevent="handleDrop"
+                >
                   <canvas
                     v-show="hasPreview"
                     ref="canvasRef"
@@ -156,6 +162,13 @@
                     <div class="flex h-full items-center justify-center text-sm text-slate-200">
                       正在处理图片…
                     </div>
+                  </div>
+                  <div
+                    v-if="isDraggingFile"
+                    class="absolute inset-3 flex flex-col items-center justify-center gap-3 rounded-lg border-2 border-dashed border-brand-300 bg-black/70 text-center text-sm text-slate-200 backdrop-blur"
+                  >
+                    <span class="text-xl">📥</span>
+                    <p>松开即可上传图片</p>
                   </div>
                 </div>
                 <div class="flex items-center justify-between text-xs text-slate-400">
@@ -359,6 +372,7 @@ const canvasRef = ref<HTMLCanvasElement>();
 const workingImage = ref<HTMLImageElement | null>(null);
 const processedBlob = ref<Blob | null>(null);
 const toneMode = ref<ToneMode>('binary');
+const isDraggingFile = ref(false);
 const binaryThreshold = ref(170);
 const fitMode = ref<'cover' | 'contain'>('cover');
 const forcePng = ref(true);
@@ -530,6 +544,44 @@ async function handleFile(file: File) {
   } catch (error) {
     const message = getErrorMessage(error, '图片处理失败');
     ElMessage.error(message);
+  }
+}
+
+function hasFilePayload(event: DragEvent) {
+  return Array.from(event.dataTransfer?.types ?? []).includes('Files');
+}
+
+function handleDragEnter(event: DragEvent) {
+  if (hasFilePayload(event)) {
+    isDraggingFile.value = true;
+  }
+}
+
+function handleDragOver(event: DragEvent) {
+  if (!hasFilePayload(event)) {
+    return;
+  }
+  event.dataTransfer!.dropEffect = 'copy';
+  isDraggingFile.value = true;
+}
+
+function handleDragLeave(event: DragEvent) {
+  const currentTarget = event.currentTarget as HTMLElement | null;
+  const related = event.relatedTarget as Node | null;
+  if (!currentTarget || !related || !currentTarget.contains(related)) {
+    isDraggingFile.value = false;
+  }
+}
+
+async function handleDrop(event: DragEvent) {
+  if (!hasFilePayload(event)) {
+    isDraggingFile.value = false;
+    return;
+  }
+  isDraggingFile.value = false;
+  const files = event.dataTransfer?.files;
+  if (files?.length) {
+    await handleFile(files[0]);
   }
 }
 
