@@ -31,7 +31,7 @@ npm start       # Express 读取 dist 并提供 /api/*
 
 ## Vercel 部署（静态 + API 一体）
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FSuInk%2Fheytea-picture&project-name=heytea-cup&repository-name=heytea-cup&build-command=npm%20run%20frontend%3Abuild&install-command=npm%20install&output-directory=frontend%2Fdist)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FSuInk%2FHeyTea-DIY-Toolkit&project-name=heytea-diy-toolkit&repository-name=heytea-diy-toolkit&build-command=npm%20run%20frontend%3Abuild&install-command=npm%20install&output-directory=frontend%2Fdist)
 
 仓库根目录包含 `api/sms/send.js`、`api/login/sms.js`、`api/user.js`、`api/upload.js` 等 Serverless 端点（内部都复用 `server/app.js`），Vercel 会为每个端点生成函数，前端可直接访问同源 `/api/*`。
 

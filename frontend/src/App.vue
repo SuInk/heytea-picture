@@ -2,7 +2,27 @@
   <div class="min-h-screen bg-slate-950 pb-16 text-slate-50">
     <div class="mx-auto max-w-6xl px-4 py-10">
       <header class="flex flex-col gap-2 pb-8">
-        <p class="text-sm uppercase tracking-widest text-brand-300">HeyTea DIY Toolkit</p>
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <p class="text-sm uppercase tracking-widest text-brand-300">HeyTea DIY Toolkit</p>
+          <a
+            :href="GITHUB_URL"
+            class="flex items-center gap-2 rounded-full border border-white/20 px-3 py-1 text-xs uppercase tracking-widest text-slate-100 transition hover:border-white/60 hover:bg-white/10"
+            target="_blank"
+            rel="noreferrer"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              class="h-4 w-4 fill-current"
+              aria-hidden="true"
+            >
+              <path
+                d="M12 .5a11.5 11.5 0 0 0-3.64 22.42c.58.11.79-.25.79-.56v-2c-3.21.7-3.89-1.38-3.89-1.38a3.07 3.07 0 0 0-1.28-1.7c-1.05-.72.08-.7.08-.7a2.43 2.43 0 0 1 1.78 1.2 2.46 2.46 0 0 0 3.35 1 2.47 2.47 0 0 1 .74-1.55c-2.56-.3-5.26-1.28-5.26-5.71A4.47 4.47 0 0 1 5.31 8a4.14 4.14 0 0 1 .11-3.05s1-.32 3.3 1.23a11.33 11.33 0 0 1 6 0c2.28-1.55 3.29-1.23 3.29-1.23a4.14 4.14 0 0 1 .12 3.05 4.46 4.46 0 0 1 1.18 3.11c0 4.45-2.71 5.41-5.28 5.7a2.77 2.77 0 0 1 .8 2.16v3.21c0 .31.21.68.8.56A11.5 11.5 0 0 0 12 .5Z"
+              />
+            </svg>
+            <span>GitHub</span>
+          </a>
+        </div>
         <h1 class="text-3xl font-semibold">喜茶杯贴前端工作台</h1>
       </header>
 
@@ -227,6 +247,7 @@ import {
   type HeyTeaUser,
 } from '@/services/heytea';
 
+const GITHUB_URL = 'https://github.com/SuInk/HeyTea-DIY-Toolkit';
 const STORAGE_KEY = 'heytea-token';
 
 function extractServerMessage(payload: unknown): string | null {
